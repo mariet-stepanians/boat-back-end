@@ -1,0 +1,46 @@
+type Boat {
+  id: ID!
+  name: String!
+  condition: Int!
+  price: Float!
+  image: String!
+  user: User! @belongsTo
+}
+
+type User {
+  id: ID!
+  first_name: String!
+  last_name: String!
+  email: String!
+  role: Role! @belongsTo
+  boats: Boat! @hasMany
+}
+
+type Role {
+  id: ID!
+  name: String!
+}
+
+type BoatPage {
+  data: [Boat!]!
+  paginatorInfo: PaginatorInfo!
+}
+
+type PaginatorInfo {
+  currentPage: Int!
+  lastPage: Int!
+  perPage: Int!
+  total: Int!
+}
+
+type Query {
+  me: User @auth
+  boats(page: Int = 1, count: Int = 15): BoatPage @field(resolver: "App\\GraphQL\\Queries\\BoatQuery@paginate")
+  boat(id: ID!): Boat @field(resolver: "App\\GraphQL\\Queries\\BoatQuery@find")
+}
+
+type Mutation {
+  createBoat(name: String!, condition: Int!, price: Float!, image: String!): Boat @guard(with: ["api"]) @field(resolver: "App\\GraphQL\\Mutations\\BoatMutator@create")
+  updateBoat(id: ID!, name: String, condition: Int, price: Float, image: String): Boat @guard(with: ["api"]) @field(resolver: "App\\GraphQL\\Mutations\\BoatMutator@update")
+  deleteBoat(id: ID!): Boolean @guard(with: ["api"]) @field(resolver: "App\\GraphQL\\Mutations\\BoatMutator@delete")
+}
